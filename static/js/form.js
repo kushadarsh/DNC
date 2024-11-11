@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const singleSection = document.getElementById('singleSection');
     const uploadTypeInputs = document.getElementsByName('upload_type');
     const submitBtn = document.getElementById('submitBtn');
-    const spinner = submitBtn.querySelector('.spinner-border');
+    const spinner = submitBtn?.querySelector('.spinner-border');
     const toast = new bootstrap.Toast(document.getElementById('formToast'));
 
     // Check if running in iframe
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const toastBody = toastEl.querySelector('.toast-body');
         toastBody.textContent = message;
         toastBody.className = `toast-body ${type === 'error' ? 'text-danger' : 
-                                          type === 'success' ? 'text-success' : ''}`;
+                                       type === 'success' ? 'text-success' : ''}`;
         
         toastEl.classList.add('showing');
         toast.show();
@@ -79,6 +79,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Fade in new section
                     targetSection.style.opacity = '1';
                     targetSection.style.transform = 'translateY(0)';
+
+                    // Show/hide submit button based on section
+                    if (submitBtn) {
+                        if (this.value === 'file') {
+                            submitBtn.classList.remove('d-none');
+                        } else {
+                            submitBtn.classList.add('d-none');
+                        }
+                    }
 
                     // Notify parent window
                     postMessageToParent('sectionChange', { type: this.value });
@@ -139,6 +148,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
 
+                if (!submitBtn || !spinner) {
+                    throw new Error('Required form elements not found');
+                }
+
                 submitBtn.disabled = true;
                 spinner.classList.remove('d-none');
                 
@@ -147,11 +160,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 formData.append('upload_type', form.upload_type.value);
                 
                 if (form.upload_type.value === 'file') {
-                    const file = document.getElementById('file').files[0];
+                    const file = document.getElementById('file')?.files[0];
                     if (!file) throw new Error('Please select a file');
                     formData.append('file', file);
                 } else {
-                    const singleEntry = document.getElementById('single_entry_input').value;
+                    const singleEntry = document.getElementById('single_entry_input')?.value;
                     if (!singleEntry) throw new Error('Please enter an email or domain');
                     formData.append('single_entry', singleEntry);
                 }
@@ -206,8 +219,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     error: errorMessage 
                 });
             } finally {
-                submitBtn.disabled = false;
-                spinner.classList.add('d-none');
+                if (submitBtn && spinner) {
+                    submitBtn.disabled = false;
+                    spinner.classList.add('d-none');
+                }
             }
         });
     }

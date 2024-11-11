@@ -13,11 +13,11 @@
                 </div>
                 <div class="card-body">
                     <form id="dncForm" class="needs-validation" novalidate>
-                        <!-- Leadbird Login Email -->
+                        <!-- App.Leadbird.io Login Email -->
                         <div class="mb-4">
                             <label for="platform_email" class="form-label">
                                 <i data-feather="mail" class="feather-sm me-1"></i>
-                                Leadbird Login Email
+                                App.Leadbird.io Login Email
                             </label>
                             <input type="email" class="form-control" id="platform_email" name="platform_email" 
                                    placeholder="your@leadbird.io" required>
@@ -59,6 +59,13 @@
                             </div>
                             <div class="form-text">Supported formats: CSV, TXT</div>
                             <div class="invalid-feedback">Please select a valid file.</div>
+                            
+                            <!-- Submit Button (Moved inside fileSection) -->
+                            <button type="submit" class="btn btn-primary w-100 mt-3" id="submitBtn">
+                                <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
+                                <i data-feather="upload-cloud" class="feather-sm me-1"></i>
+                                Upload DNC List
+                            </button>
                         </div>
 
                         <!-- Single Entry Section -->
@@ -83,13 +90,6 @@
                                 <div class="invalid-feedback">You must confirm this.</div>
                             </div>
                         </div>
-
-                        <!-- Submit Button -->
-                        <button type="submit" class="btn btn-primary w-100" id="submitBtn">
-                            <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
-                            <i data-feather="upload-cloud" class="feather-sm me-1"></i>
-                            Upload DNC List
-                        </button>
                     </form>
                 </div>
             </div>
