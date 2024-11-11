@@ -1,8 +1,6 @@
 :root {
     --leadbird-primary: #2563eb;
     --leadbird-primary-hover: #1d4ed8;
-    --leadbird-bg-light: #f8fafc;
-    --leadbird-text: #1e293b;
 }
 
 .card {
@@ -57,11 +55,6 @@
     color: var(--bs-light);
 }
 
-.loading {
-    opacity: 0.7;
-    pointer-events: none;
-}
-
 /* Validation styles */
 .was-validated .form-control:invalid,
 .form-control.is-invalid {
@@ -87,10 +80,6 @@
     padding: 0.375rem;
 }
 
-.btn:disabled {
-    opacity: 0.7;
-}
-
 /* Toast styling */
 .toast {
     background-color: var(--bs-dark);
@@ -112,49 +101,6 @@
 /* Form elements transitions */
 .form-control, .btn, .input-group-text {
     transition: all 0.2s ease-in-out;
-}
-
-/* Verification status transitions */
-#verificationStatus {
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-    opacity: 0;
-    transform: translateY(-10px);
-}
-
-#verificationStatus.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Loading spinner animation */
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-[data-feather="loader"] {
-    animation: spin 1s linear infinite;
-}
-
-/* Submit button transitions */
-#submitBtn {
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-    opacity: 0;
-    transform: translateY(10px);
-}
-
-#submitBtn:not(.d-none) {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Input group status icon transitions */
-.input-group-text i {
-    transition: opacity 0.2s ease-in-out;
-    opacity: 0;
-}
-
-.input-group-text i:not(.d-none) {
-    opacity: 1;
 }
 
 /* Form section transitions */

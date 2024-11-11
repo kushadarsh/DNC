@@ -18,18 +18,9 @@
                             <i data-feather="mail" class="feather-sm me-1"></i>
                             Platform Email
                         </label>
-                        <div class="input-group">
-                            <input type="email" class="form-control" id="platform_email" name="platform_email" 
-                                   placeholder="your@email.com" required>
-                            <span class="input-group-text" id="email-status">
-                                <i data-feather="check" class="d-none text-success"></i>
-                                <i data-feather="x" class="d-none text-danger"></i>
-                                <i data-feather="loader" class="d-none"></i>
-                            </span>
-                        </div>
+                        <input type="email" class="form-control" id="platform_email" name="platform_email" 
+                               placeholder="your@email.com" required>
                         <div class="invalid-feedback">Please enter a valid email address.</div>
-                        <!-- Verification Status Message -->
-                        <div id="verificationStatus" class="mt-2 small"></div>
                     </div>
 
                     <!-- Upload Type Selection -->
@@ -92,8 +83,8 @@
                         </div>
                     </div>
 
-                    <!-- Submit Button - Hidden by default -->
-                    <button type="submit" class="btn btn-primary w-100 d-none" id="submitBtn" disabled>
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary w-100" id="submitBtn">
                         <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
                         <i data-feather="upload-cloud" class="feather-sm me-1"></i>
                         Upload DNC List

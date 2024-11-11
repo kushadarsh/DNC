@@ -6,37 +6,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = document.getElementById('submitBtn');
     const spinner = submitBtn.querySelector('.spinner-border');
     const toast = new bootstrap.Toast(document.getElementById('formToast'));
-    const emailInput = document.getElementById('platform_email');
-    const emailStatus = document.getElementById('email-status');
-    const verificationStatus = document.getElementById('verificationStatus');
-    
-    let verificationInProgress = false;
-    let currentVerificationTimeout;
-    
-    // Enhanced debounce function with immediate option and timeout clearing
-    function debounce(func, wait, immediate = false) {
-        let timeout;
-        return function executedFunction(...args) {
-            const context = this;
-            
-            const later = function() {
-                timeout = null;
-                if (!immediate) func.apply(context, args);
-            };
-            
-            const callNow = immediate && !timeout;
-            
-            if (timeout) {
-                clearTimeout(timeout);
-            }
-            
-            timeout = setTimeout(later, wait);
-            
-            if (callNow) {
-                func.apply(context, args);
-            }
-        };
-    }
 
     // Enhanced toast message with animations
     function showToast(message, type = 'info') {
@@ -61,190 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
             toastEl.classList.remove('showing');
         }, 300);
     }
-
-    // Improved verification status update with animations
-    function updateVerificationStatus(status, message, details = '') {
-        if (!verificationStatus) {
-            console.error('Verification status element not found');
-            return;
-        }
-
-        const checkIcon = emailStatus.querySelector('.text-success');
-        const xIcon = emailStatus.querySelector('.text-danger');
-        const loaderIcon = emailStatus.querySelector('[data-feather="loader"]');
-        
-        // Reset all icons
-        [checkIcon, xIcon, loaderIcon].forEach(icon => {
-            icon.classList.add('d-none');
-            icon.style.opacity = '0';
-        });
-
-        // Hide status message initially
-        verificationStatus.classList.remove('show');
-        
-        // Use setTimeout to ensure smooth transition
-        setTimeout(() => {
-            let statusHtml = '';
-            let statusClass = '';
-            let showSubmitButton = false;
-            
-            switch (status) {
-                case 'loading':
-                    loaderIcon.classList.remove('d-none');
-                    statusClass = 'text-muted';
-                    statusHtml = `<i data-feather="loader" class="feather-sm me-1"></i> ${message}`;
-                    break;
-                    
-                case 'success':
-                    checkIcon.classList.remove('d-none');
-                    statusClass = 'text-success';
-                    statusHtml = `<i data-feather="check-circle" class="feather-sm me-1"></i> ${message}`;
-                    showSubmitButton = true;
-                    break;
-                    
-                case 'error':
-                    xIcon.classList.remove('d-none');
-                    statusClass = 'text-danger';
-                    statusHtml = `<i data-feather="alert-circle" class="feather-sm me-1"></i> ${message}`;
-                    if (details) {
-                        statusHtml += `<br><small class="text-muted">${details}</small>`;
-                    }
-                    break;
-                    
-                default:
-                    console.error('Invalid status:', status);
-                    return;
-            }
-            
-            // Update status message
-            verificationStatus.className = `mt-2 small ${statusClass}`;
-            verificationStatus.innerHTML = statusHtml;
-            
-            // Show icons with transition
-            [checkIcon, xIcon, loaderIcon].forEach(icon => {
-                if (!icon.classList.contains('d-none')) {
-                    icon.style.opacity = '1';
-                }
-            });
-            
-            // Show status message with animation
-            verificationStatus.classList.add('show');
-            
-            // Toggle submit button with animation
-            if (showSubmitButton) {
-                submitBtn.classList.remove('d-none');
-                setTimeout(() => {
-                    submitBtn.disabled = false;
-                }, 300);
-            } else {
-                submitBtn.disabled = true;
-                setTimeout(() => {
-                    submitBtn.classList.add('d-none');
-                }, 300);
-            }
-            
-            feather.replace();
-        }, 100);
-    }
-
-    // Enhanced email verification with comprehensive error handling
-    async function verifyEmail(email) {
-        if (verificationInProgress) {
-            console.log('Verification already in progress, skipping');
-            return null;
-        }
-        
-        if (currentVerificationTimeout) {
-            clearTimeout(currentVerificationTimeout);
-        }
-        
-        const formData = new FormData();
-        formData.append('platform_email', email);
-        
-        verificationInProgress = true;
-        
-        try {
-            console.log('Starting email verification for:', email);
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-            
-            const response = await fetch('/verify-email', {
-                method: 'POST',
-                body: formData,
-                signal: controller.signal
-            });
-            
-            clearTimeout(timeoutId);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const result = await response.json();
-            console.log('Verification response:', result);
-            
-            if (result.success) {
-                updateVerificationStatus('success', result.message, result.details);
-                return result;
-            } else {
-                updateVerificationStatus('error', result.error, result.details);
-                return null;
-            }
-        } catch (error) {
-            console.error('Email verification error:', error);
-            let errorMessage = 'Failed to verify email';
-            let errorDetails = 'Please try again';
-            
-            if (error.name === 'AbortError') {
-                errorMessage = 'Verification timeout';
-                errorDetails = 'The server is taking too long to respond';
-            } else if (!navigator.onLine) {
-                errorMessage = 'No internet connection';
-                errorDetails = 'Please check your connection and try again';
-            }
-            
-            updateVerificationStatus('error', errorMessage, errorDetails);
-            return null;
-        } finally {
-            verificationInProgress = false;
-        }
-    }
-
-    // Enhanced debounced email verification with proper error handling
-    const debouncedVerifyEmail = debounce(async (email) => {
-        try {
-            if (!email) {
-                updateVerificationStatus('error', 'Email is required');
-                return;
-            }
-            
-            if (!email.includes('@')) {
-                updateVerificationStatus('error', 'Please enter a valid email address');
-                return;
-            }
-            
-            updateVerificationStatus('loading', 'Verifying email...');
-            await verifyEmail(email);
-        } catch (error) {
-            console.error('Debounced verification error:', error);
-            updateVerificationStatus('error', 'Verification failed', 'Please try again');
-        }
-    }, 500);
-
-    // Enhanced email input handler with error boundary
-    emailInput.addEventListener('input', function() {
-        try {
-            const email = this.value.trim();
-            if (!email) {
-                updateVerificationStatus('error', 'Email is required');
-                return;
-            }
-            debouncedVerifyEmail(email);
-        } catch (error) {
-            console.error('Email input error:', error);
-            updateVerificationStatus('error', 'An error occurred', 'Please try again');
-        }
-    });
 
     // Enhanced section toggle with smooth animations
     uploadTypeInputs.forEach(input => {
@@ -304,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Enhanced form submission with comprehensive error handling
+    // Enhanced form submission
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
         
@@ -319,13 +104,8 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.disabled = true;
             spinner.classList.remove('d-none');
             
-            const emailVerification = await verifyEmail(emailInput.value);
-            if (!emailVerification) {
-                throw new Error('Email verification failed');
-            }
-
             const formData = new FormData();
-            formData.append('client_id', emailVerification.client_id);
+            formData.append('platform_email', form.platform_email.value);
             formData.append('upload_type', form.upload_type.value);
             
             if (form.upload_type.value === 'file') {
