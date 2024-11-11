@@ -9,6 +9,11 @@
     background-color: #ffffff;
     border: 1px solid #e2e8f0;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
 }
 
 .card-header {
@@ -19,7 +24,7 @@
 
 .form-control:focus {
     border-color: var(--leadbird-primary);
-    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25);
+    box-shadow: 0 0 0 0.25rem var(--bs-primary-bg-subtle);
 }
 
 .btn-primary {
@@ -35,6 +40,12 @@
 .btn-primary:disabled {
     cursor: not-allowed;
     opacity: 0.7;
+}
+
+.btn-check:checked + .btn {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: var(--bs-white);
 }
 
 .form-label {
@@ -64,4 +75,37 @@
 
 .invalid-feedback {
     color: #dc3545;
+}
+
+/* Additional custom styles */
+.feather-sm {
+    width: 1em;
+    height: 1em;
+}
+
+.input-group .form-control[type="file"] {
+    padding: 0.375rem;
+}
+
+.btn:disabled {
+    opacity: 0.7;
+}
+
+.toast {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+}
+
+.toast-header {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.form-control, .btn {
+    transition: all 0.2s ease-in-out;
+}
+
+.input-group-text {
+    background-color: transparent;
 }

@@ -3,43 +3,77 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h2 class="mb-0">Do Not Contact (DNC) List Upload</h2>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header border-0 bg-transparent">
+                <h2 class="mb-0 d-flex align-items-center">
+                    <i data-feather="upload-cloud" class="me-2"></i>
+                    Do Not Contact (DNC) List Upload
+                </h2>
             </div>
             <div class="card-body">
                 <form id="dncForm" class="needs-validation" novalidate>
                     <!-- Platform Email -->
                     <div class="mb-4">
-                        <label for="platform_email" class="form-label">Platform Email</label>
-                        <input type="email" class="form-control" id="platform_email" name="platform_email" required>
+                        <label for="platform_email" class="form-label">
+                            <i data-feather="mail" class="feather-sm me-1"></i>
+                            Platform Email
+                        </label>
+                        <div class="input-group">
+                            <input type="email" class="form-control" id="platform_email" name="platform_email" 
+                                   placeholder="your@email.com" required>
+                            <span class="input-group-text" id="email-status">
+                                <i data-feather="check" class="d-none text-success"></i>
+                                <i data-feather="x" class="d-none text-danger"></i>
+                            </span>
+                        </div>
                         <div class="invalid-feedback">Please enter a valid email address.</div>
                     </div>
 
                     <!-- Upload Type Selection -->
                     <div class="mb-4">
-                        <label class="form-label">Do you have a file or a single contact to upload?</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="upload_type" id="file_upload" value="file" checked>
-                            <label class="form-check-label" for="file_upload">File Upload</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="upload_type" id="single_entry" value="single">
-                            <label class="form-check-label" for="single_entry">Single Contact/Domain</label>
+                        <label class="form-label d-flex align-items-center">
+                            <i data-feather="file-text" class="feather-sm me-1"></i>
+                            Upload Type
+                        </label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="upload_type" id="file_upload" value="file" checked>
+                            <label class="btn btn-outline-secondary" for="file_upload">
+                                <i data-feather="file" class="feather-sm me-1"></i>
+                                File Upload
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="upload_type" id="single_entry" value="single">
+                            <label class="btn btn-outline-secondary" for="single_entry">
+                                <i data-feather="type" class="feather-sm me-1"></i>
+                                Single Entry
+                            </label>
                         </div>
                     </div>
 
                     <!-- File Upload Section -->
                     <div id="fileSection" class="mb-4">
-                        <label for="file" class="form-label">Upload File (CSV or TXT)</label>
-                        <input type="file" class="form-control" id="file" name="file" accept=".csv,.txt">
+                        <label for="file" class="form-label">
+                            <i data-feather="upload" class="feather-sm me-1"></i>
+                            Upload File (CSV or TXT)
+                        </label>
+                        <div class="input-group">
+                            <input type="file" class="form-control" id="file" name="file" accept=".csv,.txt">
+                            <span class="input-group-text" id="file-status">
+                                <i data-feather="file-text"></i>
+                            </span>
+                        </div>
+                        <div class="form-text">Supported formats: CSV, TXT</div>
                         <div class="invalid-feedback">Please select a valid file.</div>
                     </div>
 
                     <!-- Single Entry Section -->
                     <div id="singleSection" class="mb-4 d-none">
-                        <label for="single_entry_input" class="form-label">Email or Domain</label>
-                        <input type="text" class="form-control" id="single_entry_input" name="single_entry">
+                        <label for="single_entry_input" class="form-label">
+                            <i data-feather="at-sign" class="feather-sm me-1"></i>
+                            Email or Domain
+                        </label>
+                        <input type="text" class="form-control" id="single_entry_input" name="single_entry"
+                               placeholder="email@domain.com or domain.com">
                         <div class="invalid-feedback">Please enter a valid email or domain.</div>
                     </div>
 
@@ -47,7 +81,8 @@
                     <div class="mb-4">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="confirmation" required>
-                            <label class="form-check-label" for="confirmation">
+                            <label class="form-check-label user-select-none" for="confirmation">
+                                <i data-feather="check-circle" class="feather-sm me-1"></i>
                                 I confirm that the list contains only emails or domains
                             </label>
                             <div class="invalid-feedback">You must confirm this.</div>
@@ -55,13 +90,26 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit" class="btn btn-primary" id="submitBtn">
-                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                        Submit
+                    <button type="submit" class="btn btn-primary w-100" id="submitBtn">
+                        <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
+                        <i data-feather="upload-cloud" class="feather-sm me-1"></i>
+                        Upload DNC List
                     </button>
                 </form>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="formToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <i data-feather="info" class="feather-sm me-2"></i>
+            <strong class="me-auto">Notification</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"></div>
     </div>
 </div>
 {% endblock %}
