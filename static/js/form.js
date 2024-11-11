@@ -11,29 +11,40 @@ document.addEventListener('DOMContentLoaded', function() {
     const verificationStatus = document.getElementById('verificationStatus');
     
     let verificationInProgress = false;
+    let currentVerificationTimeout;
     
-    // Debounce function with immediate option
+    // Enhanced debounce function with immediate option and timeout clearing
     function debounce(func, wait, immediate = false) {
         let timeout;
         return function executedFunction(...args) {
             const context = this;
+            
             const later = function() {
                 timeout = null;
                 if (!immediate) func.apply(context, args);
             };
+            
             const callNow = immediate && !timeout;
-            clearTimeout(timeout);
+            
+            if (timeout) {
+                clearTimeout(timeout);
+            }
+            
             timeout = setTimeout(later, wait);
-            if (callNow) func.apply(context, args);
+            
+            if (callNow) {
+                func.apply(context, args);
+            }
         };
     }
 
-    // Show toast message with type-based styling
+    // Enhanced toast message with animations
     function showToast(message, type = 'info') {
         const toastEl = document.getElementById('formToast');
         const icon = toastEl.querySelector('.toast-header i');
         const iconType = type === 'error' ? 'alert-circle' : 
                         type === 'success' ? 'check-circle' : 'info';
+        
         icon.setAttribute('data-feather', iconType);
         feather.replace();
         
@@ -41,10 +52,17 @@ document.addEventListener('DOMContentLoaded', function() {
         toastBody.textContent = message;
         toastBody.className = `toast-body ${type === 'error' ? 'text-danger' : 
                                           type === 'success' ? 'text-success' : ''}`;
+        
+        // Add showing class for animation
+        toastEl.classList.add('showing');
         toast.show();
+        
+        setTimeout(() => {
+            toastEl.classList.remove('showing');
+        }, 300);
     }
 
-    // Update verification status UI with improved feedback
+    // Improved verification status update with animations
     function updateVerificationStatus(status, message, details = '') {
         if (!verificationStatus) {
             console.error('Verification status element not found');
@@ -55,51 +73,89 @@ document.addEventListener('DOMContentLoaded', function() {
         const xIcon = emailStatus.querySelector('.text-danger');
         const loaderIcon = emailStatus.querySelector('[data-feather="loader"]');
         
-        // Reset all icons and states
-        [checkIcon, xIcon, loaderIcon].forEach(icon => icon.classList.add('d-none'));
-        verificationStatus.className = 'mt-2 small';
-        submitBtn.classList.add('d-none');
-        submitBtn.disabled = true;
+        // Reset all icons
+        [checkIcon, xIcon, loaderIcon].forEach(icon => {
+            icon.classList.add('d-none');
+            icon.style.opacity = '0';
+        });
+
+        // Hide status message initially
+        verificationStatus.classList.remove('show');
         
-        let statusHtml = '';
-        let statusClass = '';
-        
-        switch (status) {
-            case 'loading':
-                loaderIcon.classList.remove('d-none');
-                statusClass = 'text-muted';
-                statusHtml = `<i data-feather="loader" class="feather-sm me-1"></i> ${message}`;
-                break;
-            case 'success':
-                checkIcon.classList.remove('d-none');
-                statusClass = 'text-success';
-                statusHtml = `<i data-feather="check-circle" class="feather-sm me-1"></i> ${message}`;
-                submitBtn.classList.remove('d-none');
-                submitBtn.disabled = false;
-                break;
-            case 'error':
-                xIcon.classList.remove('d-none');
-                statusClass = 'text-danger';
-                statusHtml = `<i data-feather="alert-circle" class="feather-sm me-1"></i> ${message}`;
-                if (details) {
-                    statusHtml += `<br><small class="text-muted">${details}</small>`;
+        // Use setTimeout to ensure smooth transition
+        setTimeout(() => {
+            let statusHtml = '';
+            let statusClass = '';
+            let showSubmitButton = false;
+            
+            switch (status) {
+                case 'loading':
+                    loaderIcon.classList.remove('d-none');
+                    statusClass = 'text-muted';
+                    statusHtml = `<i data-feather="loader" class="feather-sm me-1"></i> ${message}`;
+                    break;
+                    
+                case 'success':
+                    checkIcon.classList.remove('d-none');
+                    statusClass = 'text-success';
+                    statusHtml = `<i data-feather="check-circle" class="feather-sm me-1"></i> ${message}`;
+                    showSubmitButton = true;
+                    break;
+                    
+                case 'error':
+                    xIcon.classList.remove('d-none');
+                    statusClass = 'text-danger';
+                    statusHtml = `<i data-feather="alert-circle" class="feather-sm me-1"></i> ${message}`;
+                    if (details) {
+                        statusHtml += `<br><small class="text-muted">${details}</small>`;
+                    }
+                    break;
+                    
+                default:
+                    console.error('Invalid status:', status);
+                    return;
+            }
+            
+            // Update status message
+            verificationStatus.className = `mt-2 small ${statusClass}`;
+            verificationStatus.innerHTML = statusHtml;
+            
+            // Show icons with transition
+            [checkIcon, xIcon, loaderIcon].forEach(icon => {
+                if (!icon.classList.contains('d-none')) {
+                    icon.style.opacity = '1';
                 }
-                break;
-            default:
-                console.error('Invalid status:', status);
-                return;
-        }
-        
-        verificationStatus.className = `mt-2 small ${statusClass}`;
-        verificationStatus.innerHTML = statusHtml;
-        feather.replace();
+            });
+            
+            // Show status message with animation
+            verificationStatus.classList.add('show');
+            
+            // Toggle submit button with animation
+            if (showSubmitButton) {
+                submitBtn.classList.remove('d-none');
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                }, 300);
+            } else {
+                submitBtn.disabled = true;
+                setTimeout(() => {
+                    submitBtn.classList.add('d-none');
+                }, 300);
+            }
+            
+            feather.replace();
+        }, 100);
     }
 
-    // Enhanced email verification with proper error handling
+    // Enhanced email verification with comprehensive error handling
     async function verifyEmail(email) {
         if (verificationInProgress) {
             console.log('Verification already in progress, skipping');
             return null;
+        }
+        
+        if (currentVerificationTimeout) {
+            clearTimeout(currentVerificationTimeout);
         }
         
         const formData = new FormData();
@@ -109,10 +165,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         try {
             console.log('Starting email verification for:', email);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+            
             const response = await fetch('/verify-email', {
                 method: 'POST',
-                body: formData
+                body: formData,
+                signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -130,89 +192,133 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Email verification error:', error);
-            updateVerificationStatus(
-                'error',
-                'Failed to verify email',
-                'Please check your connection and try again'
-            );
+            let errorMessage = 'Failed to verify email';
+            let errorDetails = 'Please try again';
+            
+            if (error.name === 'AbortError') {
+                errorMessage = 'Verification timeout';
+                errorDetails = 'The server is taking too long to respond';
+            } else if (!navigator.onLine) {
+                errorMessage = 'No internet connection';
+                errorDetails = 'Please check your connection and try again';
+            }
+            
+            updateVerificationStatus('error', errorMessage, errorDetails);
             return null;
         } finally {
             verificationInProgress = false;
         }
     }
 
-    // Debounced email verification with proper state handling
+    // Enhanced debounced email verification with proper error handling
     const debouncedVerifyEmail = debounce(async (email) => {
-        if (!email) {
-            updateVerificationStatus('error', 'Email is required');
-            return;
+        try {
+            if (!email) {
+                updateVerificationStatus('error', 'Email is required');
+                return;
+            }
+            
+            if (!email.includes('@')) {
+                updateVerificationStatus('error', 'Please enter a valid email address');
+                return;
+            }
+            
+            updateVerificationStatus('loading', 'Verifying email...');
+            await verifyEmail(email);
+        } catch (error) {
+            console.error('Debounced verification error:', error);
+            updateVerificationStatus('error', 'Verification failed', 'Please try again');
         }
-        
-        if (!email.includes('@')) {
-            updateVerificationStatus('error', 'Please enter a valid email address');
-            return;
-        }
-        
-        updateVerificationStatus('loading', 'Verifying email...');
-        await verifyEmail(email);
     }, 500);
 
-    // Enhanced email input handler
+    // Enhanced email input handler with error boundary
     emailInput.addEventListener('input', function() {
-        const email = this.value.trim();
-        if (!email) {
-            updateVerificationStatus('error', 'Email is required');
-            return;
+        try {
+            const email = this.value.trim();
+            if (!email) {
+                updateVerificationStatus('error', 'Email is required');
+                return;
+            }
+            debouncedVerifyEmail(email);
+        } catch (error) {
+            console.error('Email input error:', error);
+            updateVerificationStatus('error', 'An error occurred', 'Please try again');
         }
-        debouncedVerifyEmail(email);
     });
 
-    // Toggle between file and single entry sections with animation
+    // Enhanced section toggle with smooth animations
     uploadTypeInputs.forEach(input => {
         input.addEventListener('change', function() {
-            const targetSection = this.value === 'file' ? fileSection : singleSection;
-            const otherSection = this.value === 'file' ? singleSection : fileSection;
-            
-            otherSection.classList.add('d-none');
-            targetSection.classList.remove('d-none');
-            targetSection.style.opacity = '0';
-            requestAnimationFrame(() => {
-                targetSection.style.opacity = '1';
-                targetSection.style.transition = 'opacity 0.2s ease-in-out';
-            });
+            try {
+                const targetSection = this.value === 'file' ? fileSection : singleSection;
+                const otherSection = this.value === 'file' ? singleSection : fileSection;
+                
+                // Fade out current section
+                otherSection.style.opacity = '0';
+                otherSection.style.transform = 'translateY(-10px)';
+                
+                setTimeout(() => {
+                    otherSection.classList.add('d-none');
+                    targetSection.classList.remove('d-none');
+                    
+                    // Trigger reflow
+                    void targetSection.offsetWidth;
+                    
+                    // Fade in new section
+                    targetSection.style.opacity = '1';
+                    targetSection.style.transform = 'translateY(0)';
+                }, 300);
+            } catch (error) {
+                console.error('Section toggle error:', error);
+                showToast('Failed to switch sections', 'error');
+            }
         });
     });
 
-    // Enhanced file input feedback
+    // Enhanced file input handler with validation
     const fileInput = document.getElementById('file');
     fileInput.addEventListener('change', function() {
-        const file = this.files[0];
-        if (file) {
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            if (file.size > maxSize) {
-                showToast('File size exceeds 5MB limit', 'error');
-                this.value = '';
-                return;
+        try {
+            const file = this.files[0];
+            if (file) {
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                if (file.size > maxSize) {
+                    showToast('File size exceeds 5MB limit', 'error');
+                    this.value = '';
+                    return;
+                }
+                
+                const validTypes = ['text/csv', 'text/plain'];
+                if (!validTypes.includes(file.type)) {
+                    showToast('Please select a CSV or TXT file', 'error');
+                    this.value = '';
+                    return;
+                }
+                
+                showToast(`Selected file: ${file.name}`, 'success');
             }
-            showToast(`Selected file: ${file.name}`, 'success');
+        } catch (error) {
+            console.error('File input error:', error);
+            showToast('Failed to process file', 'error');
+            this.value = '';
         }
     });
 
-    // Enhanced form submission with proper error handling
+    // Enhanced form submission with comprehensive error handling
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        if (!form.checkValidity()) {
-            e.stopPropagation();
-            form.classList.add('was-validated');
-            showToast('Please fill in all required fields correctly', 'error');
-            return;
-        }
-
-        submitBtn.disabled = true;
-        spinner.classList.remove('d-none');
-        
         try {
+            if (!form.checkValidity()) {
+                e.stopPropagation();
+                form.classList.add('was-validated');
+                showToast('Please fill in all required fields correctly', 'error');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            spinner.classList.remove('d-none');
+            
             const emailVerification = await verifyEmail(emailInput.value);
             if (!emailVerification) {
                 throw new Error('Email verification failed');
@@ -232,10 +338,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 formData.append('single_entry', singleEntry);
             }
 
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+            
             const submission = await fetch('/submit-blocklist', {
                 method: 'POST',
-                body: formData
+                body: formData,
+                signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);
             
             if (!submission.ok) {
                 throw new Error(`HTTP error! status: ${submission.status}`);
@@ -244,7 +356,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await submission.json();
             
             if (!result.success) {
-                throw new Error(result.error);
+                throw new Error(result.error || 'Submission failed');
             }
 
             showToast('Successfully uploaded DNC list!', 'success');
@@ -252,7 +364,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
         } catch (error) {
             console.error('Form submission error:', error);
-            showToast(`Error: ${error.message}`, 'error');
+            let errorMessage = 'Failed to submit form';
+            
+            if (error.name === 'AbortError') {
+                errorMessage = 'Submission timeout - please try again';
+            } else if (!navigator.onLine) {
+                errorMessage = 'No internet connection';
+            } else {
+                errorMessage = error.message;
+            }
+            
+            showToast(`Error: ${errorMessage}`, 'error');
         } finally {
             submitBtn.disabled = false;
             spinner.classList.add('d-none');

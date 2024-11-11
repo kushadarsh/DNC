@@ -6,8 +6,8 @@
 }
 
 .card {
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
+    background-color: var(--bs-dark);
+    border: 1px solid var(--bs-border-color);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease-in-out;
 }
@@ -17,14 +17,14 @@
 }
 
 .card-header {
-    background-color: var(--leadbird-bg-light);
-    border-bottom: 1px solid #e2e8f0;
-    color: var(--leadbird-text);
+    background-color: var(--bs-dark);
+    border-bottom: 1px solid var(--bs-border-color);
+    color: var(--bs-light);
 }
 
 .form-control:focus {
     border-color: var(--leadbird-primary);
-    box-shadow: 0 0 0 0.25rem var(--bs-primary-bg-subtle);
+    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25);
 }
 
 .btn-primary {
@@ -49,12 +49,12 @@
 }
 
 .form-label {
-    color: var(--leadbird-text);
+    color: var(--bs-light);
     font-weight: 500;
 }
 
 .form-check-label {
-    color: var(--leadbird-text);
+    color: var(--bs-light);
 }
 
 .loading {
@@ -65,16 +65,16 @@
 /* Validation styles */
 .was-validated .form-control:invalid,
 .form-control.is-invalid {
-    border-color: #dc3545;
+    border-color: var(--bs-danger);
 }
 
 .was-validated .form-control:valid,
 .form-control.is-valid {
-    border-color: #198754;
+    border-color: var(--bs-success);
 }
 
 .invalid-feedback {
-    color: #dc3545;
+    color: var(--bs-danger);
 }
 
 /* Additional custom styles */
@@ -91,9 +91,16 @@
     opacity: 0.7;
 }
 
+/* Toast styling */
 .toast {
     background-color: var(--bs-dark);
     color: var(--bs-light);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.toast.showing {
+    opacity: 1;
 }
 
 .toast-header {
@@ -102,10 +109,60 @@
     border-bottom: 1px solid var(--bs-border-color);
 }
 
-.form-control, .btn {
+/* Form elements transitions */
+.form-control, .btn, .input-group-text {
     transition: all 0.2s ease-in-out;
 }
 
+/* Verification status transitions */
+#verificationStatus {
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+#verificationStatus.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+[data-feather="loader"] {
+    animation: spin 1s linear infinite;
+}
+
+/* Submit button transitions */
+#submitBtn {
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+#submitBtn:not(.d-none) {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Input group status icon transitions */
+.input-group-text i {
+    transition: opacity 0.2s ease-in-out;
+    opacity: 0;
+}
+
+.input-group-text i:not(.d-none) {
+    opacity: 1;
+}
+
+/* Form section transitions */
+#fileSection, #singleSection {
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
 .input-group-text {
-    background-color: transparent;
+    background-color: var(--bs-dark);
+    border-color: var(--bs-border-color);
 }
