@@ -16,8 +16,19 @@ def index():
 def verify_email():
     platform_email = request.form.get('platform_email')
     
+    if not platform_email:
+        return jsonify({
+            'success': False,
+            'error': 'Email is required',
+            'status': 'validation_error'
+        })
+    
     if not validate_email_domain(platform_email):
-        return jsonify({'success': False, 'error': 'Invalid email format'})
+        return jsonify({
+            'success': False,
+            'error': 'Invalid email format',
+            'status': 'validation_error'
+        })
     
     try:
         response = requests.get(
@@ -29,18 +40,40 @@ def verify_email():
         # Find matching client
         clients = response.json()
         client_id = None
+        client_name = None
+        
         for client in clients:
             if client.get('email') == platform_email:
                 client_id = client.get('id')
+                client_name = client.get('name', 'User')
                 break
         
         if not client_id:
-            return jsonify({'success': False, 'error': 'Email not found in Smartlead'})
+            return jsonify({
+                'success': False,
+                'error': 'Email not found in Smartlead system',
+                'status': 'not_found'
+            })
         
-        return jsonify({'success': True, 'client_id': client_id})
+        return jsonify({
+            'success': True,
+            'client_id': client_id,
+            'message': f'Welcome back, {client_name}! You can now upload your DNC list.',
+            'status': 'verified'
+        })
         
     except requests.exceptions.RequestException as e:
-        return jsonify({'success': False, 'error': 'Failed to verify email with Smartlead'})
+        return jsonify({
+            'success': False,
+            'error': 'Unable to verify email with Smartlead. Please try again later.',
+            'status': 'api_error'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': 'An unexpected error occurred',
+            'status': 'system_error'
+        })
 
 @app.route('/submit-blocklist', methods=['POST'])
 def submit_blocklist():

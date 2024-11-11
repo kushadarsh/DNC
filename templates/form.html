@@ -24,9 +24,12 @@
                             <span class="input-group-text" id="email-status">
                                 <i data-feather="check" class="d-none text-success"></i>
                                 <i data-feather="x" class="d-none text-danger"></i>
+                                <i data-feather="loader" class="d-none"></i>
                             </span>
                         </div>
                         <div class="invalid-feedback">Please enter a valid email address.</div>
+                        <!-- Verification Status Message -->
+                        <div id="verificationStatus" class="mt-2 small"></div>
                     </div>
 
                     <!-- Upload Type Selection -->
@@ -89,8 +92,8 @@
                         </div>
                     </div>
 
-                    <!-- Submit Button -->
-                    <button type="submit" class="btn btn-primary w-100" id="submitBtn">
+                    <!-- Submit Button - Hidden by default -->
+                    <button type="submit" class="btn btn-primary w-100 d-none" id="submitBtn" disabled>
                         <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
                         <i data-feather="upload-cloud" class="feather-sm me-1"></i>
                         Upload DNC List

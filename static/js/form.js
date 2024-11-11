@@ -6,7 +6,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = document.getElementById('submitBtn');
     const spinner = submitBtn.querySelector('.spinner-border');
     const toast = new bootstrap.Toast(document.getElementById('formToast'));
+    const emailInput = document.getElementById('platform_email');
+    const emailStatus = document.getElementById('email-status');
+    const verificationStatus = document.getElementById('verificationStatus');
     
+    // Debounce function
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
     // Show toast message
     function showToast(message, type = 'info') {
         const toastEl = document.getElementById('formToast');
@@ -16,6 +32,85 @@ document.addEventListener('DOMContentLoaded', function() {
         toastEl.querySelector('.toast-body').textContent = message;
         toast.show();
     }
+
+    // Update verification status UI
+    function updateVerificationStatus(status, message) {
+        const checkIcon = emailStatus.querySelector('.text-success');
+        const xIcon = emailStatus.querySelector('.text-danger');
+        const loaderIcon = emailStatus.querySelector('[data-feather="loader"]');
+        
+        // Reset all icons
+        [checkIcon, xIcon, loaderIcon].forEach(icon => icon.classList.add('d-none'));
+        
+        // Update status message
+        verificationStatus.className = 'mt-2 small';
+        if (status === 'loading') {
+            loaderIcon.classList.remove('d-none');
+            verificationStatus.classList.add('text-muted');
+            verificationStatus.innerHTML = '<i data-feather="loader" class="feather-sm me-1"></i> Verifying email...';
+        } else if (status === 'success') {
+            checkIcon.classList.remove('d-none');
+            verificationStatus.classList.add('text-success');
+            verificationStatus.innerHTML = '<i data-feather="check-circle" class="feather-sm me-1"></i> ' + message;
+            submitBtn.classList.remove('d-none');
+            submitBtn.disabled = false;
+        } else if (status === 'error') {
+            xIcon.classList.remove('d-none');
+            verificationStatus.classList.add('text-danger');
+            verificationStatus.innerHTML = '<i data-feather="alert-circle" class="feather-sm me-1"></i> ' + message;
+            submitBtn.classList.add('d-none');
+            submitBtn.disabled = true;
+        }
+        feather.replace();
+    }
+
+    // Email verification function
+    async function verifyEmail(email) {
+        const formData = new FormData();
+        formData.append('platform_email', email);
+        
+        try {
+            const response = await fetch('/verify-email', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                updateVerificationStatus('success', result.message || 'Email verified successfully');
+                return result;
+            } else {
+                updateVerificationStatus('error', result.error || 'Failed to verify email');
+                return null;
+            }
+        } catch (error) {
+            updateVerificationStatus('error', 'Network error occurred');
+            return null;
+        }
+    }
+
+    // Debounced email verification
+    const debouncedVerifyEmail = debounce(async (email) => {
+        if (email && email.includes('@')) {
+            updateVerificationStatus('loading');
+            await verifyEmail(email);
+        } else {
+            updateVerificationStatus('error', 'Please enter a valid email address');
+        }
+    }, 500);
+
+    // Email input handler
+    emailInput.addEventListener('input', function() {
+        const email = this.value.trim();
+        if (email) {
+            debouncedVerifyEmail(email);
+        } else {
+            updateVerificationStatus('error', 'Email is required');
+            submitBtn.classList.add('d-none');
+            submitBtn.disabled = true;
+        }
+    });
 
     // Toggle between file and single entry sections with animation
     uploadTypeInputs.forEach(input => {
@@ -32,26 +127,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => singleSection.style.opacity = 1, 50);
             }
         });
-    });
-
-    // Email validation feedback
-    const emailInput = document.getElementById('platform_email');
-    const emailStatus = document.getElementById('email-status');
-    
-    emailInput.addEventListener('input', function() {
-        const checkIcon = emailStatus.querySelector('.text-success');
-        const xIcon = emailStatus.querySelector('.text-danger');
-        
-        if (this.checkValidity() && this.value) {
-            checkIcon.classList.remove('d-none');
-            xIcon.classList.add('d-none');
-        } else if (this.value) {
-            checkIcon.classList.add('d-none');
-            xIcon.classList.remove('d-none');
-        } else {
-            checkIcon.classList.add('d-none');
-            xIcon.classList.add('d-none');
-        }
     });
 
     // File input feedback
@@ -80,9 +155,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         try {
             // Step 1: Verify email
-            const emailVerification = await verifyEmail();
-            if (!emailVerification.success) {
-                throw new Error(emailVerification.error);
+            const emailVerification = await verifyEmail(emailInput.value);
+            if (!emailVerification) {
+                throw new Error('Email verification failed');
             }
 
             // Step 2: Submit blocklist
@@ -122,18 +197,6 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
         }
     });
-
-    async function verifyEmail() {
-        const formData = new FormData();
-        formData.append('platform_email', document.getElementById('platform_email').value);
-        
-        const response = await fetch('/verify-email', {
-            method: 'POST',
-            body: formData
-        });
-        
-        return await response.json();
-    }
 
     // Initialize feather icons
     feather.replace();
