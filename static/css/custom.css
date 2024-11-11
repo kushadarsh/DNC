@@ -3,6 +3,26 @@
     --leadbird-primary-hover: #1d4ed8;
 }
 
+/* Iframe-specific adjustments */
+.dnc-form-wrapper {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+/* Reset iframe-specific styles */
+.dnc-form-wrapper * {
+    box-sizing: border-box;
+}
+
+/* Responsive adjustments for embedded context */
+@media (max-width: 576px) {
+    .dnc-form-wrapper {
+        padding: 0.5rem;
+    }
+}
+
 .card {
     background-color: var(--bs-dark);
     border: 1px solid var(--bs-border-color);
@@ -106,9 +126,29 @@
 /* Form section transitions */
 #fileSection, #singleSection {
     transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#fileSection.d-none, #singleSection.d-none {
+    opacity: 0;
+    transform: translateY(-10px);
 }
 
 .input-group-text {
     background-color: var(--bs-dark);
     border-color: var(--bs-border-color);
+}
+
+/* Embedded context specific styles */
+.embedded-context {
+    height: 100vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Hide unnecessary elements in embedded context */
+.embedded-context .navbar,
+.embedded-context .container > .py-3 {
+    display: none !important;
 }
