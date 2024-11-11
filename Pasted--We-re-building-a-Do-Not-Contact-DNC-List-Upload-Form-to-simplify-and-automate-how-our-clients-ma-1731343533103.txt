@@ -1,0 +1,50 @@
+
+
+We're building a Do-Not-Contact (DNC) List Upload Form to simplify and automate how our clients manage their contact exclusions within Smartlead. This tool allows clients to easily upload lists of emails or domains they want to block from outreach, ensuring compliance with DNC policies and enhancing targeting precision for campaigns.
+Why We're Building This
+1. Streamlined Compliance: Many clients manage DNC lists manually, which can be error-prone and time-consuming. This form centralizes the DNC list upload, making it simple and consistent for clients to update their exclusions and meet regulatory and organizational standards.
+2. Improved Campaign Accuracy: By automatically assigning DNC lists to specific client accounts, we can prevent unwanted outreach to blocked contacts, helping clients maintain clean, compliant, and accurate lists. This, in turn, boosts campaign effectiveness by avoiding unintentional contacts and improving deliverability.
+3. User-Friendly Interface: The form is designed to be intuitive and straightforward. Clients can upload a list or single contact, validate their data, and submit it in one seamless flow. This user experience removes complexity, reduces the potential for errors, and provides immediate feedback if any fields are incorrect.
+Ultimately, this feature empowers clients to manage their outreach boundaries with ease, enhancing their trust in Smartlead and allowing them to focus on building meaningful client relationships rather than navigating compliance details.
+
+Form Fields
+1. Platform Email
+    * Description: User's platform email, used to identify and assign the block list at a client level within Smartlead.
+    * Validation: Check if email format is correct.
+2. Field Option (Select Input)
+    * Label: "Do you have a file or a single contact to upload?"
+    * Options:
+        * File Upload: Option to upload a file containing contacts or domains.
+        * Single Contact/Domain: Option to input a single email or domain manually.
+3. Domain/Email Confirmation (Checkbox)
+    * Label: "I confirm that the list contains only emails or domains."
+    * Purpose: Ensure that users upload only emails or domains, not just names or company names.
+    * Validation: Require this box to be checked before submission.
+4. File Upload or Contact Field (Conditional)
+    * If File Upload is Selected:
+        * File Upload Field: Accepts CSV or TXT files.
+        * Validation: Ensure the file contains only domains and/or email addresses.
+    * If Single Contact/Domain is Selected:
+        * Single Email/Domain Input: Direct input for a single email address or domain.
+        * Validation: Verify email or domain format.
+Submission Workflow
+1. Client ID Verification
+    * Once the user submits the form, use the Platform Email field to fetch the client’s ID from Smartlead’s API:
+        * API Endpoint: GET https://server.smartlead.ai/api/v1/client/
+        * Request:bash Copy code   curl https://server.smartlead.ai/api/v1/client/?api_key={API_KEY}
+        *   
+        * Logic: Match the entered Platform Email (e.g., “Adarsh@leadbird.io”) with the response data to identify and retrieve the Client ID.
+2. Send Block List Data
+    * After identifying the Client ID, use it to upload the block list to Smartlead’s API.
+    * API Endpoint: POST https://server.smartlead.ai/api/v1/leads/add-domain-block-list
+    * Request:bash Copy code   curl https://server.smartlead.ai/api/v1/leads/add-domain-block-list?api_key={API_KEY} \
+    * --data {
+    *   "domain_block_list": ["ramesh+1001@five2one.com.au", "apple.com"],
+    *   "client_id": "RETRIEVED_CLIENT_ID"
+    * }
+    *   
+3. Post-Submission
+    * Redirect: After the successful submission, redirect users to https://leadbird.io as a confirmation step.
+Additional Validation Notes
+* Field Validation: Ensure that only emails or domains are present in the block list, with no additional text like contact names or company names.
+* User Feedback: Provide error messages for missing or incorrectly formatted fields and a success message upon form submission.
