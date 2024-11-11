@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">Do Not Contact (DNC) List Upload</h2>
+            </div>
+            <div class="card-body">
+                <form id="dncForm" class="needs-validation" novalidate>
+                    <!-- Platform Email -->
+                    <div class="mb-4">
+                        <label for="platform_email" class="form-label">Platform Email</label>
+                        <input type="email" class="form-control" id="platform_email" name="platform_email" required>
+                        <div class="invalid-feedback">Please enter a valid email address.</div>
+                    </div>
+
+                    <!-- Upload Type Selection -->
+                    <div class="mb-4">
+                        <label class="form-label">Do you have a file or a single contact to upload?</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="upload_type" id="file_upload" value="file" checked>
+                            <label class="form-check-label" for="file_upload">File Upload</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="upload_type" id="single_entry" value="single">
+                            <label class="form-check-label" for="single_entry">Single Contact/Domain</label>
+                        </div>
+                    </div>
+
+                    <!-- File Upload Section -->
+                    <div id="fileSection" class="mb-4">
+                        <label for="file" class="form-label">Upload File (CSV or TXT)</label>
+                        <input type="file" class="form-control" id="file" name="file" accept=".csv,.txt">
+                        <div class="invalid-feedback">Please select a valid file.</div>
+                    </div>
+
+                    <!-- Single Entry Section -->
+                    <div id="singleSection" class="mb-4 d-none">
+                        <label for="single_entry_input" class="form-label">Email or Domain</label>
+                        <input type="text" class="form-control" id="single_entry_input" name="single_entry">
+                        <div class="invalid-feedback">Please enter a valid email or domain.</div>
+                    </div>
+
+                    <!-- Confirmation Checkbox -->
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="confirmation" required>
+                            <label class="form-check-label" for="confirmation">
+                                I confirm that the list contains only emails or domains
+                            </label>
+                            <div class="invalid-feedback">You must confirm this.</div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        Submit
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/form.js') }}"></script>
+{% endblock %}
