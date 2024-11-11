@@ -80,15 +80,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     targetSection.style.opacity = '1';
                     targetSection.style.transform = 'translateY(0)';
 
-                    // Show/hide submit button based on section
-                    if (submitBtn) {
-                        if (this.value === 'file') {
-                            submitBtn.classList.remove('d-none');
-                        } else {
-                            submitBtn.classList.add('d-none');
-                        }
-                    }
-
                     // Notify parent window
                     postMessageToParent('sectionChange', { type: this.value });
                 }, 300);
@@ -135,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Enhanced form submission with cross-origin support
+    // Enhanced form submission
     if (form) {
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -175,8 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const submission = await fetch('/submit-blocklist', {
                     method: 'POST',
                     body: formData,
-                    signal: controller.signal,
-                    credentials: 'include'
+                    signal: controller.signal
                 });
                 
                 clearTimeout(timeoutId);
@@ -226,17 +216,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
-    // Listen for messages from parent window
-    window.addEventListener('message', function(event) {
-        try {
-            if (event.data.source === 'parent' && event.data.type === 'init') {
-                postMessageToParent('ready', { height: document.body.scrollHeight });
-            }
-        } catch (error) {
-            console.error('Message handling error:', error);
-        }
-    });
 
     // Initialize feather icons
     feather.replace();

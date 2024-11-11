@@ -32,13 +32,13 @@
                             </label>
                             <div class="btn-group w-100" role="group">
                                 <input type="radio" class="btn-check" name="upload_type" id="file_upload" value="file" checked>
-                                <label class="btn btn-outline-secondary" for="file_upload">
+                                <label class="btn btn-outline-primary" for="file_upload">
                                     <i data-feather="file" class="feather-sm me-1"></i>
                                     File Upload
                                 </label>
                                 
                                 <input type="radio" class="btn-check" name="upload_type" id="single_entry" value="single">
-                                <label class="btn btn-outline-secondary" for="single_entry">
+                                <label class="btn btn-outline-primary" for="single_entry">
                                     <i data-feather="type" class="feather-sm me-1"></i>
                                     Single Entry
                                 </label>
@@ -59,13 +59,16 @@
                             </div>
                             <div class="form-text">Supported formats: CSV, TXT</div>
                             <div class="invalid-feedback">Please select a valid file.</div>
-                            
-                            <!-- Submit Button (Moved inside fileSection) -->
-                            <button type="submit" class="btn btn-primary w-100 mt-3" id="submitBtn">
-                                <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
-                                <i data-feather="upload-cloud" class="feather-sm me-1"></i>
-                                Upload DNC List
-                            </button>
+
+                            <!-- Confirmation Checkbox (Moved inside fileSection) -->
+                            <div class="form-check mt-3">
+                                <input class="form-check-input" type="checkbox" id="confirmation" required>
+                                <label class="form-check-label user-select-none" for="confirmation">
+                                    <i data-feather="check-circle" class="feather-sm me-1"></i>
+                                    I confirm that the list contains only emails or domains
+                                </label>
+                                <div class="invalid-feedback">You must confirm this.</div>
+                            </div>
                         </div>
 
                         <!-- Single Entry Section -->
@@ -79,17 +82,12 @@
                             <div class="invalid-feedback">Please enter a valid email or domain.</div>
                         </div>
 
-                        <!-- Confirmation Checkbox -->
-                        <div class="mb-4">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="confirmation" required>
-                                <label class="form-check-label user-select-none" for="confirmation">
-                                    <i data-feather="check-circle" class="feather-sm me-1"></i>
-                                    I confirm that the list contains only emails or domains
-                                </label>
-                                <div class="invalid-feedback">You must confirm this.</div>
-                            </div>
-                        </div>
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary w-100" id="submitBtn">
+                            <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
+                            <i data-feather="upload-cloud" class="feather-sm me-1"></i>
+                            Upload DNC List
+                        </button>
                     </form>
                 </div>
             </div>
